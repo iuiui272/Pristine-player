@@ -1,22 +1,9 @@
-// 1. Smart Install Logic
-let deferredPrompt;
-const installBtn = document.getElementById('install-button');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    installBtn.style.display = 'block';
-});
-
-// 2. The Auto-Scanner
-const trackList = [
-    "Debut", "Gabriela", "Gameboy", "Gnarly", "I'm Pretty", 
-    "M.I.A", "Mean Girls", "My Way", "Tonight I Might", "Touch"
-];
+const trackList = ["Debut", "Gabriela", "Gameboy", "Gnarly", "I'm Pretty", "M.I.A", "Mean Girls", "My Way", "Tonight I Might", "Touch"];
+const audioPlayer = document.getElementById('audio-player');
+const playBtn = document.querySelector('.play-btn');
 
 function renderGrid() {
     const grid = document.getElementById('song-grid');
-    const audioPlayer = document.getElementById('audio-player');
     grid.innerHTML = ''; 
     
     trackList.forEach(trackName => {
@@ -26,31 +13,28 @@ function renderGrid() {
             <div class="art-placeholder"></div>
             <div class="song-info">
                 <h3>${trackName}</h3>
-                <p>Click to Play</p>
+                <button class="download-btn" data-track="${trackName}">Download</button>
             </div>
         `;
         
         card.addEventListener('click', () => {
-            // Update Player Bar
             document.getElementById('player-title').innerText = trackName;
-            
-            // Encode the path to handle spaces (e.g., 'Mean Girls.mp3' becomes 'Mean%20Girls.mp3')
-            const safePath = encodeURIComponent(trackName);
-            audioPlayer.src = `music/${safePath}.mp3`;
-            
-            // Attempt playback
-            audioPlayer.play().catch(error => {
-                console.log("Playback blocked by browser, please click Play button.");
-            });
+            audioPlayer.src = `music/${encodeURIComponent(trackName)}.mp3`;
+            audioPlayer.play();
+            playBtn.innerText = '⏸';
+        });
+
+        card.querySelector('.download-btn').addEventListener('click', (e) => {
+            e.stopPropagation(); // Stop from playing the song
+            const link = document.createElement('a');
+            link.href = `music/${encodeURIComponent(trackName)}.mp3`;
+            link.download = `${trackName}.mp3`;
+            link.click();
         });
         
         grid.appendChild(card);
     });
 }
-
-// 3. Manual Play/Pause Button Logic
-const playBtn = document.querySelector('.play-btn');
-const audioPlayer = document.getElementById('audio-player');
 
 playBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
