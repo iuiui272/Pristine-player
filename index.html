@@ -9,7 +9,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>Library</h2>
@@ -23,35 +22,26 @@
             </nav>
             
             <div class="sidebar-actions">
-                <!-- The magic folder scanner -->
-                <label for="folder-import" class="btn primary-btn">Import Folder</label>
-                <input type="file" id="folder-import" webkitdirectory directory multiple hidden>
-                
-                <!-- Smart Install Button -->
                 <button id="install-button" class="btn secondary-btn" style="display: none;">Install App</button>
             </div>
         </aside>
 
-        <!-- Main Content Area -->
         <main class="content">
             <header class="mobile-header">
                 <h1>Songs</h1>
             </header>
             
-            <!-- Song Grid where injected JS cards will go -->
             <div class="song-grid" id="song-grid">
-                <!-- Example Placeholder Card -->
                 <div class="song-card">
                     <div class="art-placeholder"></div>
                     <div class="song-info">
-                        <h3>Waiting for Music...</h3>
-                        <p>Import a folder to begin</p>
+                        <h3>Loading Library...</h3>
+                        <p>Syncing with GitHub</p>
                     </div>
                 </div>
             </div>
         </main>
 
-        <!-- Glassmorphism Player Bar -->
         <footer class="player-bar">
             <div class="now-playing">
                 <div class="mini-art"></div>
@@ -64,6 +54,7 @@
                 <button class="control-btn">⏮</button>
                 <button class="control-btn play-btn">▶</button>
                 <button class="control-btn">⏭</button>
+                <audio id="audio-player" style="display: none;"></audio>
             </div>
         </footer>
     </div>
