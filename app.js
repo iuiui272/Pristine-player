@@ -8,18 +8,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     installBtn.style.display = 'block';
 });
 
-installBtn.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        installBtn.style.display = 'none';
-    }
-});
-
 // 2. The Auto-Scanner
-// Since we can't 'look' into folders via GitHub, you just list your file names here ONCE.
-// Then the code handles the rest.
 const trackList = [
     "Debut", "Gabriela", "Gameboy", "Gnarly", "I'm Pretty", 
     "M.I.A", "Mean Girls", "My Way", "Tonight I Might", "Touch"
@@ -37,19 +26,40 @@ function renderGrid() {
             <div class="art-placeholder"></div>
             <div class="song-info">
                 <h3>${trackName}</h3>
-                <p>Unknown Artist</p>
+                <p>Click to Play</p>
             </div>
         `;
         
         card.addEventListener('click', () => {
+            // Update Player Bar
             document.getElementById('player-title').innerText = trackName;
-            // This points to your actual files in the /music folder
-            audioPlayer.src = `music/${trackName}.mp3`;
-            audioPlayer.play();
+            
+            // Encode the path to handle spaces (e.g., 'Mean Girls.mp3' becomes 'Mean%20Girls.mp3')
+            const safePath = encodeURIComponent(trackName);
+            audioPlayer.src = `music/${safePath}.mp3`;
+            
+            // Attempt playback
+            audioPlayer.play().catch(error => {
+                console.log("Playback blocked by browser, please click Play button.");
+            });
         });
         
         grid.appendChild(card);
     });
 }
+
+// 3. Manual Play/Pause Button Logic
+const playBtn = document.querySelector('.play-btn');
+const audioPlayer = document.getElementById('audio-player');
+
+playBtn.addEventListener('click', () => {
+    if (audioPlayer.paused) {
+        audioPlayer.play();
+        playBtn.innerText = '⏸';
+    } else {
+        audioPlayer.pause();
+        playBtn.innerText = '▶';
+    }
+});
 
 window.onload = renderGrid;
