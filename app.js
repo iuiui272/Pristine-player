@@ -7,39 +7,39 @@ request.onupgradeneeded = (e) => {
 };
 request.onsuccess = (e) => { db = e.target.result; };
 
-// 2. Track List & State
+// 2. State
 const trackList = ["Debut", "Gabriela", "Gameboy", "Gnarly", "I'm Pretty", "M.I.A", "Mean Girls", "My Way", "Tonight I Might", "Touch"];
 const audioPlayer = document.getElementById('audio-player');
 let currentTrack = null;
 
-// 3. iTunes API Fetcher
+// 3. API Fetcher (Hardcoded Artist for accuracy)
 async function fetchTrackMeta(trackName) {
+    const artist = "KATSEYE"; // Ensures API searches specifically for this artist
     try {
-        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(trackName)}&entity=song&limit=1`);
+        const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(trackName + " " + artist)}&entity=song&limit=1`);
         const data = await res.json();
         if (data.results && data.results.length > 0) {
             return {
                 artist: data.results[0].artistName,
-                cover: data.results[0].artworkUrl100.replace('100x100', '500x500') // High-res trick
+                cover: data.results[0].artworkUrl100.replace('100x100', '500x500')
             };
         }
-    } catch (err) { console.error("API Error"); }
-    return { artist: "Unknown Artist", cover: "" }; // Fallback
+    } catch (err) { console.error("API error"); }
+    return { artist: "KATSEYE", cover: "" };
 }
 
-// 4. Save to Internal Storage
+// 4. Save/Delete Logic
 async function saveToInternalStorage(trackName, btnElement) {
     try {
-        btnElement.innerText = "Saving...";
         const response = await fetch(`music/${encodeURIComponent(trackName)}.mp3`);
         const blob = await response.blob();
         const transaction = db.transaction(["tracks"], "readwrite");
         transaction.objectStore("tracks").put({ id: trackName, data: blob });
         btnElement.innerText = "✓ Saved";
-    } catch (err) { alert("Could not save."); btnElement.innerText = "Error"; }
+    } catch (err) { alert("Could not save."); }
 }
 
-// 5. Render Library
+// 5. Render Grid
 async function renderGrid() {
     const grid = document.getElementById('song-grid');
     grid.innerHTML = '';
@@ -52,17 +52,14 @@ async function renderGrid() {
             <div class="song-info">
                 <h3>${trackName}</h3>
                 <p id="artist-${trackName}">Loading...</p>
-                <button class="download-btn">Save Offline</button>
+                <button class="download-btn">Save</button>
             </div>
         `;
         grid.appendChild(card);
 
-        // Fetch API Data
         fetchTrackMeta(trackName).then(meta => {
             document.getElementById(`artist-${trackName}`).innerText = meta.artist;
             if (meta.cover) document.getElementById(`art-${trackName}`).style.backgroundImage = `url('${meta.cover}')`;
-            
-            // Setup Playback Click
             card.addEventListener('click', () => startPlayback(trackName, meta));
         });
 
@@ -73,18 +70,14 @@ async function renderGrid() {
     }
 }
 
-// 6. Playback & UI Updating
+// 6. Playback
 function startPlayback(trackName, meta) {
     currentTrack = trackName;
     audioPlayer.src = `music/${encodeURIComponent(trackName)}.mp3`;
     audioPlayer.play();
-    
-    // Update Mini Player
     document.getElementById('player-title').innerText = trackName;
     document.getElementById('mini-art').src = meta.cover || '';
     document.getElementById('mini-play').innerText = '⏸';
-    
-    // Update Full Screen Player
     document.getElementById('fs-title').innerText = trackName;
     document.getElementById('fs-artist').innerText = meta.artist;
     document.getElementById('fs-cover').src = meta.cover || '';
@@ -92,57 +85,24 @@ function startPlayback(trackName, meta) {
 }
 
 function togglePlay() {
-    if (!audioPlayer.src) return;
-    if (audioPlayer.paused) {
-        audioPlayer.play();
-        document.getElementById('mini-play').innerText = '⏸';
-        document.querySelector('.fs-play').innerText = '⏸';
-    } else {
-        audioPlayer.pause();
-        document.getElementById('mini-play').innerText = '▶';
-        document.querySelector('.fs-play').innerText = '▶';
-    }
+    if (audioPlayer.paused) { audioPlayer.play(); document.getElementById('mini-play').innerText = '⏸'; document.querySelector('.fs-play').innerText = '⏸'; }
+    else { audioPlayer.pause(); document.getElementById('mini-play').innerText = '▶'; document.querySelector('.fs-play').innerText = '▶'; }
 }
 
 document.getElementById('mini-play').addEventListener('click', (e) => { e.stopPropagation(); togglePlay(); });
 document.querySelector('.fs-play').addEventListener('click', togglePlay);
 
-// 7. Full Screen Logic
-document.getElementById('mini-player').addEventListener('click', () => {
-    if(currentTrack) document.getElementById('fullscreen-player').classList.remove('hidden');
-});
-document.getElementById('close-fullscreen').addEventListener('click', () => {
-    document.getElementById('fullscreen-player').classList.add('hidden');
-});
+// 7. UI Toggles
+document.getElementById('mini-player').addEventListener('click', () => { if(currentTrack) document.getElementById('fullscreen-player').classList.remove('hidden'); });
+document.getElementById('close-fullscreen').addEventListener('click', () => { document.getElementById('fullscreen-player').classList.add('hidden'); });
+document.getElementById('profile-btn').addEventListener('click', () => document.getElementById('profile-modal').classList.remove('hidden'));
+document.getElementById('close-profile').addEventListener('click', () => document.getElementById('profile-modal').classList.add('hidden'));
 
-// 8. Profile & Settings Logic
-const profileBtn = document.getElementById('profile-btn');
-const profileModal = document.getElementById('profile-modal');
-
-profileBtn.addEventListener('click', () => profileModal.classList.remove('hidden'));
-document.getElementById('close-profile').addEventListener('click', () => profileModal.classList.add('hidden'));
-
-// Load Profile Name
-const savedName = localStorage.getItem('pristineName');
-if (savedName) document.querySelector('.mobile-header h1').innerText = `Hey, ${savedName}`;
-
-document.getElementById('save-profile').addEventListener('click', () => {
-    const name = document.getElementById('username-input').value;
-    if (name) {
-        localStorage.setItem('pristineName', name);
-        document.querySelector('.mobile-header h1').innerText = `Hey, ${name}`;
-        profileModal.classList.add('hidden');
-    }
-});
-
-// Delete Data
+// 8. Cache Logic
 document.getElementById('clear-cache').addEventListener('click', () => {
-    if (confirm("Are you sure? This deletes all saved offline songs and profile data.")) {
-        indexedDB.deleteDatabase("PristineMusicDB");
-        localStorage.clear();
-        alert("Cache cleared. Reloading app...");
-        location.reload();
-    }
+    indexedDB.deleteDatabase("PristineMusicDB");
+    localStorage.clear();
+    location.reload();
 });
 
 window.onload = renderGrid;
