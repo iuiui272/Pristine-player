@@ -2,61 +2,64 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>Pristine Player</title>
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
-</head>
+    <link rel="apple-touch-icon" href="icon.png"> </head>
 <body>
     <div class="app-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>Library</h2>
-            </div>
-            <nav>
-                <ul>
-                    <li class="active">Songs</li>
-                    <li>Albums</li>
-                    <li>Artists</li>
-                </ul>
-            </nav>
-            
-            <div class="sidebar-actions">
-                <button id="install-button" class="btn secondary-btn" style="display: none;">Install App</button>
-            </div>
-        </aside>
-
-        <main class="content">
+        <main class="content" id="main-content">
             <header class="mobile-header">
-                <h1>Songs</h1>
+                <h1>Library</h1>
+                <button id="profile-btn" class="icon-btn">👤</button>
             </header>
             
-            <div class="song-grid" id="song-grid">
-                <div class="song-card">
-                    <div class="art-placeholder"></div>
-                    <div class="song-info">
-                        <h3>Loading Library...</h3>
-                        <p>Syncing with GitHub</p>
-                    </div>
-                </div>
-            </div>
+            <div class="song-grid" id="song-grid"></div>
         </main>
 
-        <footer class="player-bar">
-            <div class="now-playing">
-                <div class="mini-art"></div>
-                <div class="track-details">
+        <div id="fullscreen-player" class="fullscreen-view hidden">
+            <button id="close-fullscreen">🡣</button>
+            <img id="fs-cover" src="" alt="Cover Art" class="fs-art">
+            <div class="fs-info">
+                <h2 id="fs-title">Not Playing</h2>
+                <p id="fs-artist">--</p>
+            </div>
+            <div class="fs-controls">
+                <button class="control-btn fs-btn">⏮</button>
+                <button class="control-btn play-btn fs-play">▶</button>
+                <button class="control-btn fs-btn">⏭</button>
+            </div>
+        </div>
+
+        <nav class="floating-menu">
+            <button class="nav-item active" id="nav-library">
+                <span>📚</span><label>Library</label>
+            </button>
+            <div class="mini-player" id="mini-player">
+                <img id="mini-art" src="" alt="">
+                <div class="mini-info">
                     <span id="player-title">Not Playing</span>
-                    <span id="player-artist">--</span>
                 </div>
+                <button class="control-btn play-btn" id="mini-play">▶</button>
             </div>
-            <div class="player-controls">
-                <button class="control-btn">⏮</button>
-                <button class="control-btn play-btn">▶</button>
-                <button class="control-btn">⏭</button>
-                <audio id="audio-player" style="display: none;"></audio>
+            <button class="nav-item" id="nav-search">
+                <span>🔍</span><label>Search</label>
+            </button>
+        </nav>
+        
+        <audio id="audio-player" style="display: none;"></audio>
+
+        <div id="profile-modal" class="modal hidden">
+            <div class="modal-content liquid-glass">
+                <h2>Profile & Settings</h2>
+                <input type="text" id="username-input" placeholder="Enter your name">
+                <button id="save-profile" class="btn primary-btn">Save</button>
+                <hr>
+                <button id="clear-cache" class="btn danger-btn">🗑️ Clear All Saved Music & Data</button>
+                <button id="close-profile" class="btn secondary-btn">Close</button>
             </div>
-        </footer>
+        </div>
     </div>
 
     <script src="app.js"></script>
