@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Pristine Player</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Library</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li class="active">Songs</li>
+                    <li>Albums</li>
+                    <li>Artists</li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-actions">
+                <!-- The magic folder scanner -->
+                <label for="folder-import" class="btn primary-btn">Import Folder</label>
+                <input type="file" id="folder-import" webkitdirectory directory multiple hidden>
+                
+                <!-- Smart Install Button -->
+                <button id="install-button" class="btn secondary-btn" style="display: none;">Install App</button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content">
+            <header class="mobile-header">
+                <h1>Songs</h1>
+            </header>
+            
+            <!-- Song Grid where injected JS cards will go -->
+            <div class="song-grid" id="song-grid">
+                <!-- Example Placeholder Card -->
+                <div class="song-card">
+                    <div class="art-placeholder"></div>
+                    <div class="song-info">
+                        <h3>Waiting for Music...</h3>
+                        <p>Import a folder to begin</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Glassmorphism Player Bar -->
+        <footer class="player-bar">
+            <div class="now-playing">
+                <div class="mini-art"></div>
+                <div class="track-details">
+                    <span id="player-title">Not Playing</span>
+                    <span id="player-artist">--</span>
+                </div>
+            </div>
+            <div class="player-controls">
+                <button class="control-btn">⏮</button>
+                <button class="control-btn play-btn">▶</button>
+                <button class="control-btn">⏭</button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

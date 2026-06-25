@@ -1,0 +1,8 @@
+{
+  "name": "Pristine Player",
+  "short_name": "Music",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "icons": []
+}
